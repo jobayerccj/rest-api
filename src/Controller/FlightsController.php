@@ -45,6 +45,8 @@ readonly class FlightsController extends ApiController
         $flightJson = $request->getBody()->getContents();
         $flightData = $this->serializer->deserialize($flightJson, Flight::class, $request->getAttribute('content-type')->format());
 
+        $this->validator->validate($flightData, $request);
+
         $this->entityManager->persist($flightData);
         $this->entityManager->flush();
 
@@ -79,17 +81,26 @@ readonly class FlightsController extends ApiController
         $flightJson = $request->getBody()->getContents();
         $flightData = $this->serializer->deserialize(
             $flightJson,
-            Flight::class, 
+            Flight::class,
             $request->getAttribute('content-type')->format(),
             [
                 AbstractNormalizer::OBJECT_TO_POPULATE => $flight,
+                AbstractNormalizer::IGNORED_ATTRIBUTES => ['number'],
             ]
         );
+
+        $this->validator->validate($flightData, $request, [Flight::UPDATE_GROUP]);
 
         $this->entityManager->persist($flightData);
         $this->entityManager->flush();
 
-        $jsonData = $this->serializer->serialize(['flight' => $flightData], $request->getAttribute('content-type')->format());
+        $jsonData = $this->serializer->serialize(
+            [
+                'flight' => $flightData
+            ],
+            $request->getAttribute('content-type')->format()
+        );
+
         $response->getBody()->write($jsonData);
 
         return $response->withStatus(StatusCodeInterface::STATUS_OK);

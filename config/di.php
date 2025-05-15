@@ -8,6 +8,7 @@ use Doctrine\ORM\ORMSetup;
 use League\Container\Argument\Literal\ArrayArgument;
 use League\Container\Container;
 use League\Container\ReflectionContainer;
+use Symfony\Component\Validator\Validation;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -57,6 +58,12 @@ $container->add(\Symfony\Component\Serializer\SerializerInterface::class, functi
     ];
 
     return new \Symfony\Component\Serializer\Serializer($normalizers, $encoders);
+});
+
+$container->add(\Symfony\Component\Validator\Validator\ValidatorInterface::class, function() {
+    return Validation::createValidatorBuilder()
+        ->enableAttributeMapping()
+        ->getValidator();
 });
 
 return $container;

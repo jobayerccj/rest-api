@@ -5,30 +5,41 @@ declare (strict_types=1);
 namespace App\Entity;
 
 use DateTimeImmutable;
+use App\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity]
 #[ORM\Table(name: 'flights')]
-class Flight
+class Flight implements EntityInterface
 {
+    const CREATE_GROUP = 'create';
+    const UPDATE_GROUP = 'update';
+
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 15)]
+    #[Assert\NotBlank(groups: [self::CREATE_GROUP])]
     private string $number;
 
     #[ORM\Column(type: 'string', length: 3)]
+    #[Assert\NotBlank(groups: [self::CREATE_GROUP, self::UPDATE_GROUP])]
     private string $origin;
 
     #[ORM\Column(type: 'string', length: 3)]
+    #[Assert\NotBlank(groups: [self::CREATE_GROUP, self::UPDATE_GROUP])]
     private string $destination;
 
     #[ORM\Column(name: 'departure_time', type: 'datetime_immutable')]
+    #[Assert\NotBlank(groups: [self::CREATE_GROUP, self::UPDATE_GROUP])]
     private DateTimeImmutable $departureTime;
 
     #[ORM\Column(name: 'arrival_time', type: 'datetime_immutable')]
+    #[Assert\NotBlank(groups: [self::CREATE_GROUP, self::UPDATE_GROUP])]
     private DateTimeImmutable $arrivalTime;
 
     public function getNumber(): string

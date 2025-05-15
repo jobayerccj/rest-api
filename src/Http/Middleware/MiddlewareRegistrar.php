@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Http\Middleware\ContentNegotiation\ContentTypeNegotiator;
-use Middlewares\TrailingSlash;
 use Slim\App;
+use Middlewares\TrailingSlash;
+use App\Http\Error\HttpErrorHandler;
+use App\Http\Middleware\ContentNegotiation\ContentTypeNegotiator;
 
 /**
  * Registers middleware
@@ -45,6 +46,10 @@ final readonly class MiddlewareRegistrar
 
     private function addErrorMiddleware(): void
     {
-        $this->app->addErrorMiddleware(true, true, true);
+        $errorMiddleware = $this->app->addErrorMiddleware(true, true, true);
+        $callableResolver = $this->app->getCallableResolver();
+        $errorMiddleware->setDefaultErrorHandler(
+            new HttpErrorHandler($callableResolver, $this->app->getResponseFactory())
+        );
     }
 }
